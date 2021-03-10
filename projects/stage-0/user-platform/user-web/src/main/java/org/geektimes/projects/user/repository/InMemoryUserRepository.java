@@ -20,6 +20,11 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
+    public String saveWithReStr(User user) {
+        return null;
+    }
+
+    @Override
     public boolean deleteById(Long userId) {
         return repository.remove(userId) != null;
     }

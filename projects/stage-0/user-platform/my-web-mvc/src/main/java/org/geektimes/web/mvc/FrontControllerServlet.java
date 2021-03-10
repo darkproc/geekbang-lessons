@@ -10,6 +10,9 @@ import org.geektimes.web.mvc.header.CacheControlHeaderWriter;
 import org.geektimes.web.mvc.header.annotation.CacheControl;
 
 
+import javax.naming.Context;
+import javax.naming.InitialContext;
+import javax.naming.NamingException;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletContext;
@@ -56,23 +59,37 @@ public class FrontControllerServlet extends HttpServlet {
      * 利用 ServiceLoader 技术（Java SPI）
      */
     private void initHandleMethods() {
-        for (Controller controller : ServiceLoader.load(Controller.class)) {
-            Class<?> controllerClass = controller.getClass();
-            Path pathFromClass = controllerClass.getAnnotation(Path.class);
-            String requestPath = pathFromClass.value();
-            Method[] publicMethods = controllerClass.getMethods();
-            // 处理方法支持的 HTTP 方法集合
-            for (Method method : publicMethods) {
-                Set<String> supportedHttpMethods = findSupportedHttpMethods(method);
-                Path pathFromMethod = method.getAnnotation(Path.class);
-                if (pathFromMethod != null) {
-                    requestPath += pathFromMethod.value();
-                }
-                handleMethodInfoMapping.put(requestPath,
-                        new HandlerMethodInfo(requestPath, method, supportedHttpMethods));
-            }
-            controllersMapping.put(requestPath, controller);
+        InitialContext iniCtx = null;
+        try {
+            iniCtx = new InitialContext();
+            Context envCtx = (Context) iniCtx.lookup("java:comp/env");
+            Controller controller= (Controller) envCtx.lookup("bean/UserController");
+            doHandle(controller);
+        } catch (NamingException e) {
+            e.printStackTrace();
         }
+
+        for (Controller controller : ServiceLoader.load(Controller.class)) {
+            doHandle(controller);
+        }
+    }
+
+    private void doHandle(Controller controller) {
+        Class<?> controllerClass = controller.getClass();
+        Path pathFromClass = controllerClass.getAnnotation(Path.class);
+        String requestPath = pathFromClass.value();
+        Method[] publicMethods = controllerClass.getMethods();
+        // 处理方法支持的 HTTP 方法集合
+        for (Method method : publicMethods) {
+            Set<String> supportedHttpMethods = findSupportedHttpMethods(method);
+            Path pathFromMethod = method.getAnnotation(Path.class);
+            if (pathFromMethod != null) {
+                requestPath += pathFromMethod.value();
+            }
+            handleMethodInfoMapping.put(requestPath,
+                    new HandlerMethodInfo(requestPath, method, supportedHttpMethods));
+        }
+        controllersMapping.put(requestPath, controller);
     }
 
     /**

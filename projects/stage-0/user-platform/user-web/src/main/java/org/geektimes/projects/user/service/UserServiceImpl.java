@@ -21,13 +21,13 @@ public class UserServiceImpl implements UserService {
     @Override
     // 默认需要事务
     @LocalTransactional
-    public boolean register(User user) {
+    public String registerWithReStr(User user) {
         // before process
 //        EntityTransaction transaction = entityManager.getTransaction();
 //        transaction.begin();
-        repository.save(user);
+        return repository.saveWithReStr(user);
         // 主调用
-        entityManager.persist(user);
+//        entityManager.persist(user);
 
         // 调用其他方法方法
 //        update(user); // 涉及事务
@@ -56,9 +56,12 @@ public class UserServiceImpl implements UserService {
         // after process
         // transaction.commit();
 
+//        return false;
+    }
+    @Override
+    public boolean register(User user) {
         return false;
     }
-
     @Override
     public boolean deregister(User user) {
         return false;

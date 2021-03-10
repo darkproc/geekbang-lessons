@@ -1,5 +1,6 @@
 package org.geektimes.projects.user.web.controller;
 
+import org.apache.commons.lang.StringUtils;
 import org.geektimes.projects.user.domain.User;
 import org.geektimes.projects.user.service.UserService;
 import org.geektimes.projects.user.service.UserServiceImpl;
@@ -33,11 +34,12 @@ public class UserController implements PageController {
         user.setPassword(password);
         user.setPhoneNumber(phonenumber);
         System.out.println("user="+user);
-        Boolean flag=userService.register(user);
-        if(flag){
+        String reStr=userService.registerWithReStr(user);
+        if("success".equals(reStr)){
             request.setAttribute("status","恭喜，注册成功");
         }else{
-            request.setAttribute("status","注册失败了");
+            System.out.println(reStr);
+            request.setAttribute("status",reStr);
         }
         return "result.jsp";
     }

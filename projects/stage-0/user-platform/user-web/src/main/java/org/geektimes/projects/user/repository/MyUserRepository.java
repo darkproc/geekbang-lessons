@@ -1,20 +1,34 @@
 package org.geektimes.projects.user.repository;
 
 import org.geektimes.projects.user.domain.User;
+import org.geektimes.projects.user.sql.DBConnectionManager;
 
+import javax.annotation.Resource;
+import javax.persistence.EntityManager;
+import javax.persistence.EntityTransaction;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.PreparedStatement;
 import java.util.Collection;
 
 public class MyUserRepository implements UserRepository {
+    @Resource(name= "bean/DBConnectionManager")
+    private DBConnectionManager dbConnectionManager;
+
+    @Resource(name = "bean/EntityManager")
+    private EntityManager entityManager;
     public static final String INSERT_USER_DML_SQL =
             "INSERT INTO users(name,password,email,phoneNumber) VALUES " +
                     "(?,?,?,?)";
-    @Override
     public boolean save(User user) {
+        return false;
+    }
+    @Override
+    public String saveWithReStr(User user) {
+        String reStr="success";
         try {
-            System.out.println("========exec:MyUserRepository.save success ========");
+            System.out.println("========exec:MyUserRepository.save  ========");
+            //version 1.0
 //            String databaseURL = "jdbc:derby:D:/db/user-platform;create=true";
 ////            Class.forName("org.apache.derby.jdbc.EmbeddedDriver");
 //            Connection connection = DriverManager.getConnection(databaseURL);
@@ -27,11 +41,20 @@ public class MyUserRepository implements UserRepository {
 //            if(i > 0){
 //                return true;
 //            }
-            return  false;
+
+            EntityTransaction transaction = entityManager.getTransaction();
+            transaction.begin();
+            user.setId(null);//擦除掉id，否则持久化时会抛异常
+            entityManager.persist(user);
+            transaction.commit();
+//            Connection connection = dbConnectionManager.getConnection();
+//            entityManager.persist(user);
         } catch (Exception e) {
-            e.printStackTrace();
+//            e.printStackTrace();
+            System.out.println(e.getMessage());
+            reStr = e.getMessage();
         }
-        return false;
+        return reStr;
     }
 
     @Override

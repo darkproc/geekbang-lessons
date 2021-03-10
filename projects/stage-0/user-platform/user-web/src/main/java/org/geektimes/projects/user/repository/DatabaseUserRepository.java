@@ -48,6 +48,11 @@ public class DatabaseUserRepository implements UserRepository {
     }
 
     @Override
+    public String saveWithReStr(User user) {
+        return null;
+    }
+
+    @Override
     public boolean deleteById(Long userId) {
         return false;
     }

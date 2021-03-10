@@ -17,6 +17,8 @@ public interface UserService {
     @LocalTransactional
     boolean register(User user);
 
+    String registerWithReStr(User user);
+
     /**
      * 注销用户
      *

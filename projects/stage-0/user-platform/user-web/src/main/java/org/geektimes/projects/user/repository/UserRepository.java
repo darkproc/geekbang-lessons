@@ -14,6 +14,8 @@ public interface UserRepository {
 
     boolean save(User user);
 
+    String saveWithReStr(User user);
+
     boolean deleteById(Long userId);
 
     boolean update(User user);
